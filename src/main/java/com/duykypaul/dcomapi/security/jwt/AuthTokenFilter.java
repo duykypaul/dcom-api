@@ -1,8 +1,6 @@
 package com.duykypaul.dcomapi.security.jwt;
 
-import com.duykypaul.dcomapi.security.services.UserDetailsImpl;
 import com.duykypaul.dcomapi.security.services.UserDetailsServiceImpl;
-import jdk.nashorn.internal.ir.CatchNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

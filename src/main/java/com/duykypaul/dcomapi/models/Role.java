@@ -1,8 +1,13 @@
 package com.duykypaul.dcomapi.models;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "roles")
 public class Role extends BaseEntity {
 
@@ -11,13 +16,5 @@ public class Role extends BaseEntity {
     private ERole name;
 
     public Role() {
-    }
-
-    public ERole getName() {
-        return name;
-    }
-
-    public void setName(ERole name) {
-        this.name = name;
     }
 }

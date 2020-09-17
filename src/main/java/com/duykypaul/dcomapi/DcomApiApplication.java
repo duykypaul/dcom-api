@@ -10,5 +10,4 @@ public class DcomApiApplication {
     public static void main(String[] args) {
         SpringApplication.run(DcomApiApplication.class, args);
     }
-
 }
