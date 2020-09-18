@@ -2,11 +2,13 @@ server:
   port: 1102
 
 spring:
+  # Data-Source Properties
   datasource:
     url: jdbc:mysql://127.0.0.1:3308/dcom_api?useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: duyky123
 
+  # JPA Properties
   jpa:
     properties:
       hibernate:
@@ -16,6 +18,22 @@ spring:
       ddl-auto: create
     show-sql: true
 
+  # Email Properties
+  mail:
+    host: smtp.gmail.com
+    port: 993
+    properties:
+      mail:
+        username: duykypaul@gmail.com
+        password: duyky123
+        smtp:
+          starttls:
+            enable: true
+            required: true
+          auth: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 # App Properties
 duykypaul:
   app:

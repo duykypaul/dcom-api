@@ -4,17 +4,21 @@ import com.duykypaul.dcomapi.beans.JwtBean;
 import com.duykypaul.dcomapi.beans.LoginBean;
 import com.duykypaul.dcomapi.beans.MessageBean;
 import com.duykypaul.dcomapi.beans.UserBean;
+import com.duykypaul.dcomapi.models.ConfirmationToken;
 import com.duykypaul.dcomapi.models.ERole;
 import com.duykypaul.dcomapi.models.Role;
 import com.duykypaul.dcomapi.models.User;
+import com.duykypaul.dcomapi.repository.ConfirmationTokenRepository;
 import com.duykypaul.dcomapi.repository.RoleRepository;
 import com.duykypaul.dcomapi.repository.UserRepository;
 import com.duykypaul.dcomapi.security.jwt.JwtUtils;
+import com.duykypaul.dcomapi.security.services.EmailSenderService;
 import com.duykypaul.dcomapi.security.services.UserDetailsImpl;
 import com.duykypaul.dcomapi.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,9 +26,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -49,6 +55,12 @@ public class UserServiceImpl implements UserService {
     @Autowired
     ModelMapper modelMapper;
 
+    @Autowired
+    private EmailSenderService emailSenderService;
+
+    @Autowired
+    private ConfirmationTokenRepository confirmationTokenRepository;
+
     @Override
     public ResponseEntity<?> authenticateUser(LoginBean loginBean) {
         UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(loginBean.getUsername(), loginBean.getPassword());
@@ -66,6 +78,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<?> registerUser(UserBean userBean) {
         if (userRepository.existsByUsername(userBean.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageBean("Error: Username is already taken!"));
@@ -105,6 +118,31 @@ public class UserServiceImpl implements UserService {
         user.setRoles(roles);
         userRepository.save(user);
 
+        ConfirmationToken confirmationToken = new ConfirmationToken(user);
+        confirmationTokenRepository.save(confirmationToken);
+
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(user.getEmail());
+        mailMessage.setSubject("Complete Registration!");
+        mailMessage.setFrom("duykypaul@gmail.com");
+        mailMessage.setText("To confirm your account, please click here : "
+            + "http://localhost:1102/confirm-account?token=" + confirmationToken.getConfirmationToken());
+
+        emailSenderService.sendEmail(mailMessage);
+
         return ResponseEntity.ok(new MessageBean("User registered successfully!"));
+    }
+
+    @Override
+    public void confirmUserAccount(String confirmationToken) {
+        ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
+
+        if (token != null) {
+            Optional<User> user = Optional.ofNullable(
+                userRepository.findByEmail(token.getUser().getEmail())
+                    .orElseThrow(() -> new RuntimeException("Error: Role is not found")));
+//            user.setEnabled(true);
+            userRepository.save(user.get());
+        }
     }
 }

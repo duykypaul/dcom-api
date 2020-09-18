@@ -8,4 +8,6 @@ public interface UserService {
     ResponseEntity<?> authenticateUser(LoginBean loginBean);
 
     ResponseEntity<?> registerUser(UserBean userBean);
+
+    void confirmUserAccount(String token);
 }

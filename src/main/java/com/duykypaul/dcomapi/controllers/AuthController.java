@@ -26,4 +26,9 @@ public class AuthController {
     public ResponseEntity<?> registerUser(@Valid @RequestBody UserBean userBean) {
         return userService.registerUser(userBean);
     }
+
+    @RequestMapping(value = "/confirm-account", method = {RequestMethod.GET, RequestMethod.POST})
+    public void confirmUserAccount(@RequestParam("token") String confirmationToken) {
+        userService.confirmUserAccount(confirmationToken);
+    }
 }

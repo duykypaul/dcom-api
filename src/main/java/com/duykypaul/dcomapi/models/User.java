@@ -23,7 +23,7 @@ public class User extends BaseEntity {
     private String username;
 
     @NotBlank
-    @Size(max = 20)
+    @Size(max = 50)
     @Email
     private String email;
 

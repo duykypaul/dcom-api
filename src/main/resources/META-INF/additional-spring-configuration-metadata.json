@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "spring.email.host",
+      "type": "java.lang.String",
+      "description": "Description for spring.email.host."
+    }
+  ]
+}
