@@ -135,6 +135,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<?> confirmUserAccount(String confirmationToken) {
         ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken)
             .orElseThrow(() -> new RuntimeException("Error: The token was not found"));
