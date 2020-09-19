@@ -9,5 +9,5 @@ public interface UserService {
 
     ResponseEntity<?> registerUser(UserBean userBean);
 
-    void confirmUserAccount(String token);
+    ResponseEntity<?> confirmUserAccount(String token);
 }

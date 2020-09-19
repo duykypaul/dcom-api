@@ -35,5 +35,5 @@ public class UserBean extends BaseBean<UserBean> {
     private String profilePicture;
     private String profileViews;
     private String permission;
-
+    private boolean isEnabled;
 }

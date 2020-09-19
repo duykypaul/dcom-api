@@ -41,6 +41,7 @@ public class User extends BaseEntity {
     private String profilePicture;
     private String profileViews;
     private String permission;
+    private boolean isEnabled;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
@@ -56,5 +57,6 @@ public class User extends BaseEntity {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.isEnabled = false;
     }
 }

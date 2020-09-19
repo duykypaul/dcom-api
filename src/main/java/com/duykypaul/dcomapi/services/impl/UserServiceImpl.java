@@ -4,6 +4,7 @@ import com.duykypaul.dcomapi.beans.JwtBean;
 import com.duykypaul.dcomapi.beans.LoginBean;
 import com.duykypaul.dcomapi.beans.MessageBean;
 import com.duykypaul.dcomapi.beans.UserBean;
+import com.duykypaul.dcomapi.common.Constant;
 import com.duykypaul.dcomapi.models.ConfirmationToken;
 import com.duykypaul.dcomapi.models.ERole;
 import com.duykypaul.dcomapi.models.Role;
@@ -28,9 +29,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -126,23 +127,33 @@ public class UserServiceImpl implements UserService {
         mailMessage.setSubject("Complete Registration!");
         mailMessage.setFrom("duykypaul@gmail.com");
         mailMessage.setText("To confirm your account, please click here : "
-            + "http://localhost:1102/confirm-account?token=" + confirmationToken.getConfirmationToken());
+            + Constant.DCOM_API_URL + "/auth/confirm-account?token=" + confirmationToken.getConfirmationToken());
 
         emailSenderService.sendEmail(mailMessage);
 
-        return ResponseEntity.ok(new MessageBean("User registered successfully!"));
+        return ResponseEntity.ok(new MessageBean("Please check gmail to confirm your account!"));
     }
 
     @Override
-    public void confirmUserAccount(String confirmationToken) {
-        ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
+    public ResponseEntity<?> confirmUserAccount(String confirmationToken) {
+        ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken)
+            .orElseThrow(() -> new RuntimeException("Error: The token was not found"));
 
         if (token != null) {
-            Optional<User> user = Optional.ofNullable(
-                userRepository.findByEmail(token.getUser().getEmail())
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found")));
-//            user.setEnabled(true);
-            userRepository.save(user.get());
+            User user = userRepository.findByEmail(token.getUser().getEmail())
+                .orElseThrow(() -> new RuntimeException("Error: Email is not found"));
+
+            if (user.isEnabled()) {
+                return ResponseEntity.badRequest().body(new MessageBean("Error: Your account has been previously verified!"));
+            }
+
+            if (token.getExpirationDate().getTime() < new Date(System.currentTimeMillis()).getTime()) {
+                return ResponseEntity.badRequest().body(new MessageBean("Error: The confirmation Time has expired!"));
+            }
+
+            user.setEnabled(true);
+            userRepository.save(user);
         }
+        return ResponseEntity.ok(new MessageBean("User registered successfully!"));
     }
 }
