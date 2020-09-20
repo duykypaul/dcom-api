@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -92,7 +93,7 @@ public class UserServiceImpl implements UserService {
             return ResponseEntity.ok(new JwtBean(jwtToken, userBean));
         } catch (AuthenticationException e) {
             logger.error(e.getMessage(), e);
-            return ResponseEntity.ok(new MessageBean("Please check gmail to confirm your account!"));
+            return new ResponseEntity<>(new MessageBean("Please check gmail to confirm your account!"), HttpStatus.BAD_REQUEST);
         }
     }
 
