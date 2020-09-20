@@ -9,7 +9,12 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Table(name = "roles")
-public class Role extends BaseEntity {
+public class Role {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter
+    private Long id;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)

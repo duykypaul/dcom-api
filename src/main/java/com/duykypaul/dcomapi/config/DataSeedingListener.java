@@ -1,9 +1,9 @@
 package com.duykypaul.dcomapi.config;
 
 import com.duykypaul.dcomapi.common.Constant;
-import com.duykypaul.dcomapi.models.ERole;
-import com.duykypaul.dcomapi.models.Role;
-import com.duykypaul.dcomapi.models.User;
+import com.duykypaul.dcomapi.models.*;
+import com.duykypaul.dcomapi.repository.CategoryRepository;
+import com.duykypaul.dcomapi.repository.PostRepository;
 import com.duykypaul.dcomapi.repository.RoleRepository;
 import com.duykypaul.dcomapi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +12,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,10 +25,17 @@ public class DataSeedingListener implements ApplicationListener<ContextRefreshed
     private RoleRepository roleRepository;
 
     @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    private PostRepository postRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
+        // Add Roles
         if (!roleRepository.findByName(ERole.ROLE_ADMIN).isPresent()) {
             roleRepository.save(new Role(ERole.ROLE_ADMIN));
         }
@@ -53,6 +61,22 @@ public class DataSeedingListener implements ApplicationListener<ContextRefreshed
             admin.setRoles(roles);
             admin.setEnabled(true);
             userRepository.save(admin);
+        }
+
+        // Add list category
+        Constant.Category.LST_CATEGORY.forEach(item -> {
+            if (!categoryRepository.existsByName(item)) {
+                categoryRepository.save(new Category(item));
+            }
+        });
+
+        // Add Post
+        if (postRepository.count() == 0) {
+            Post post = new Post();
+            post.setCategories(new HashSet<>(Collections.singletonList(categoryRepository.findById(1L).get())));
+            post.setContent("test1");
+            post.setUser(userRepository.findByEmail(Constant.Auth.ADMIN_EMAIL).get());
+            postRepository.save(post);
         }
     }
 }

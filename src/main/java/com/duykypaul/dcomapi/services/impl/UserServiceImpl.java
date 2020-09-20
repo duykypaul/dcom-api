@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private ConfirmationTokenRepository confirmationTokenRepository;
 
-    private PropertyMap<User, UserBean> propertyMapIgnorePassword = new PropertyMap<User, UserBean>() {
+    private final PropertyMap<User, UserBean> propertyMapIgnorePassword = new PropertyMap<User, UserBean>() {
         @Override
         protected void configure() {
             skip(destination.getPassword());
@@ -79,7 +79,6 @@ public class UserServiceImpl implements UserService {
         try {
             UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(loginBean.getUsername(), loginBean.getPassword());
             Authentication authentication = authenticationManager.authenticate(authReq);
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             String jwtToken = jwtUtils.generateJwtToken(authentication);
@@ -90,10 +89,10 @@ public class UserServiceImpl implements UserService {
                 userBean = modelMapper.map(user.get(), UserBean.class);
             }
 
-            return ResponseEntity.ok(new JwtBean(jwtToken, userBean));
+            return ResponseEntity.ok(new JwtBean(HttpStatus.OK.value(), jwtToken, userBean));
         } catch (AuthenticationException e) {
             logger.error(e.getMessage(), e);
-            return new ResponseEntity<>(new MessageBean("Please check gmail to confirm your account!"), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.ok(new MessageBean(HttpStatus.UNAUTHORIZED.value(), "Email or password invalid!"));
         }
     }
 
@@ -102,10 +101,10 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<?> signUp(UserBean userBean) {
         ModelMapper modelMapper = new ModelMapper();
         if (userRepository.existsByUsername(userBean.getUsername())) {
-            return ResponseEntity.badRequest().body(new MessageBean("Error: Username is already taken!"));
+            return ResponseEntity.badRequest().body(new MessageBean(0, "Error: Username is already taken!"));
         }
         if (userRepository.existsByEmail(userBean.getEmail())) {
-            return ResponseEntity.badRequest().body(new MessageBean("Error: Email is already taken!"));
+            return ResponseEntity.badRequest().body(new MessageBean(0, "Email is already taken!"));
         }
 
         userBean.setPassword(passwordEncoder.encode(userBean.getPassword()));
@@ -151,7 +150,7 @@ public class UserServiceImpl implements UserService {
 
         emailSenderService.sendEmail(mailMessage);
 
-        return ResponseEntity.ok(new MessageBean("Please check gmail to confirm your account!"));
+        return ResponseEntity.ok(new MessageBean(0, "Please check gmail to confirm your account!"));
     }
 
     @Override
@@ -165,17 +164,17 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("Error: Email is not found"));
 
             if (user.isEnabled()) {
-                return ResponseEntity.badRequest().body(new MessageBean("Error: Your account has been previously verified!"));
+                return ResponseEntity.badRequest().body(new MessageBean(0, "Error: Your account has been previously verified!"));
             }
 
             if (token.getExpirationDate().getTime() < new Date(System.currentTimeMillis()).getTime()) {
-                return ResponseEntity.badRequest().body(new MessageBean("Error: The confirmation Time has expired!"));
+                return ResponseEntity.badRequest().body(new MessageBean(0, "Error: The confirmation Time has expired!"));
             }
 
             user.setEnabled(true);
             userRepository.save(user);
         }
-        return ResponseEntity.ok(new MessageBean("User registered successfully!"));
+        return ResponseEntity.ok(new MessageBean(0, "User registered successfully!"));
     }
 
     @Override
