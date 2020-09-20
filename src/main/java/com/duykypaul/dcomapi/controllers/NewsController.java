@@ -22,7 +22,7 @@ public class NewsController {
     ModelMapper modelMapper;
 
     @PostMapping("/news")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody NewsBean loginBean) {
+    public ResponseEntity<?> saveNews(@Valid @RequestBody NewsBean loginBean) {
         newsRepository.save(modelMapper.map(loginBean, News.class));
         return ResponseEntity.ok("success");
     }

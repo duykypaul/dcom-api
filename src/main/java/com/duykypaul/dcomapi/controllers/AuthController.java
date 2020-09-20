@@ -1,7 +1,7 @@
 package com.duykypaul.dcomapi.controllers;
 
-import com.duykypaul.dcomapi.beans.LoginBean;
 import com.duykypaul.dcomapi.beans.UserBean;
+import com.duykypaul.dcomapi.payload.LoginBean;
 import com.duykypaul.dcomapi.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,13 +23,13 @@ public class AuthController {
     UserService userService;
 
     @PostMapping("/signIn")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginBean loginBean) {
-        return userService.authenticateUser(loginBean);
+    public ResponseEntity<?> signIn(@Valid @RequestBody LoginBean loginBean) {
+        return userService.signIn(loginBean);
     }
 
     @PostMapping("/signUp")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody UserBean userBean) {
-        return userService.registerUser(userBean);
+    public ResponseEntity<?> signUp(@Valid @RequestBody UserBean userBean) {
+        return userService.signUp(userBean);
     }
 
     @PostMapping("/signOut")

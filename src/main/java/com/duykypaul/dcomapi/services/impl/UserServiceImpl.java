@@ -1,42 +1,46 @@
 package com.duykypaul.dcomapi.services.impl;
 
-import com.duykypaul.dcomapi.beans.JwtBean;
-import com.duykypaul.dcomapi.beans.LoginBean;
 import com.duykypaul.dcomapi.beans.MessageBean;
+import com.duykypaul.dcomapi.beans.RoleBean;
 import com.duykypaul.dcomapi.beans.UserBean;
 import com.duykypaul.dcomapi.common.Constant;
 import com.duykypaul.dcomapi.models.ConfirmationToken;
 import com.duykypaul.dcomapi.models.ERole;
 import com.duykypaul.dcomapi.models.Role;
 import com.duykypaul.dcomapi.models.User;
+import com.duykypaul.dcomapi.payload.JwtBean;
+import com.duykypaul.dcomapi.payload.LoginBean;
+import com.duykypaul.dcomapi.payload.PasswordBean;
 import com.duykypaul.dcomapi.repository.ConfirmationTokenRepository;
 import com.duykypaul.dcomapi.repository.RoleRepository;
 import com.duykypaul.dcomapi.repository.UserRepository;
 import com.duykypaul.dcomapi.security.jwt.JwtUtils;
 import com.duykypaul.dcomapi.security.services.EmailSenderService;
-import com.duykypaul.dcomapi.security.services.UserDetailsImpl;
 import com.duykypaul.dcomapi.services.UserService;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Autowired
     AuthenticationManager authenticationManager;
@@ -62,25 +66,40 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private ConfirmationTokenRepository confirmationTokenRepository;
 
+    private PropertyMap<User, UserBean> propertyMapIgnorePassword = new PropertyMap<User, UserBean>() {
+        @Override
+        protected void configure() {
+            skip(destination.getPassword());
+        }
+    };
+
     @Override
-    public ResponseEntity<?> authenticateUser(LoginBean loginBean) {
-        UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(loginBean.getUsername(), loginBean.getPassword());
-        Authentication authentication = authenticationManager.authenticate(authReq);
+    public ResponseEntity<?> signIn(LoginBean loginBean) {
+        try {
+            UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(loginBean.getUsername(), loginBean.getPassword());
+            Authentication authentication = authenticationManager.authenticate(authReq);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String jwtToken = jwtUtils.generateJwtToken(authentication);
+            String jwtToken = jwtUtils.generateJwtToken(authentication);
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            Optional<User> user = userRepository.findByUsername(authentication.getName());
+            UserBean userBean = new UserBean();
+            if (user.isPresent()) {
+                userBean = modelMapper.map(user.get(), UserBean.class);
+            }
 
-        List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
-
-        return ResponseEntity.ok(new JwtBean(jwtToken, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles));
+            return ResponseEntity.ok(new JwtBean(jwtToken, userBean));
+        } catch (AuthenticationException e) {
+            logger.error(e.getMessage(), e);
+            return ResponseEntity.ok(new MessageBean("Please check gmail to confirm your account!"));
+        }
     }
 
     @Override
     @Transactional
-    public ResponseEntity<?> registerUser(UserBean userBean) {
+    public ResponseEntity<?> signUp(UserBean userBean) {
+        ModelMapper modelMapper = new ModelMapper();
         if (userRepository.existsByUsername(userBean.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageBean("Error: Username is already taken!"));
         }
@@ -91,15 +110,15 @@ public class UserServiceImpl implements UserService {
         userBean.setPassword(passwordEncoder.encode(userBean.getPassword()));
         User user = modelMapper.map(userBean, User.class);
 
-        Set<String> roleNames = userBean.getRoles();
+        Set<RoleBean> roleBeans = userBean.getRoles();
         Set<Role> roles = new HashSet<>();
 
-        if (null == roleNames) {
+        if (null == roleBeans) {
             Role userRole = roleRepository.findByName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
             roles.add(userRole);
         } else {
-            roleNames.forEach(role -> {
-                switch (role.toLowerCase()) {
+            roleBeans.forEach(role -> {
+                switch (role.getName().name().toLowerCase()) {
                     case "admin":
                         Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
                         roles.add(adminRole);
@@ -157,4 +176,40 @@ public class UserServiceImpl implements UserService {
         }
         return ResponseEntity.ok(new MessageBean("User registered successfully!"));
     }
+
+    @Override
+    public ResponseEntity<?> findById(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Error: User Id is not found"));
+        UserBean userBean = modelMapper.map(user, UserBean.class);
+        return ResponseEntity.ok(userBean);
+    }
+
+    @Override
+    public ResponseEntity<?> findAll() {
+        List<User> users = userRepository.findAll();
+        return convertListUserToUserBean(users);
+    }
+
+    @Override
+    public ResponseEntity<?> findAll(Integer pageNo, Integer pageSize, String sortBy) {
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
+        List<User> users = userRepository.findAll(paging).getContent();
+        return convertListUserToUserBean(users);
+    }
+
+    @Override
+    public ResponseEntity<?> changePassword(PasswordBean bean) {
+        return ResponseEntity.ok("ok");
+    }
+
+    private ResponseEntity<?> convertListUserToUserBean(List<User> users) {
+        List<UserBean> userBeans = new ArrayList<>();
+        users.forEach((user) -> {
+            UserBean userBean = modelMapper.map(user, UserBean.class);
+            userBeans.add(userBean);
+        });
+        return ResponseEntity.ok(userBeans);
+    }
+
+
 }

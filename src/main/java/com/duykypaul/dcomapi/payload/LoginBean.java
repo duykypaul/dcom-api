@@ -1,4 +1,4 @@
-package com.duykypaul.dcomapi.beans;
+package com.duykypaul.dcomapi.payload;
 
 import lombok.Getter;
 import lombok.Setter;

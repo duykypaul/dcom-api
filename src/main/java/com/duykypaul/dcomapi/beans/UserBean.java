@@ -23,7 +23,7 @@ public class UserBean extends BaseBean<UserBean> {
     @Size(min = 6, max = 30)
     private String password;
 
-    private Set<String> roles;
+    private Set<RoleBean> roles;
 
     private String firstName;
     private String lastName;
