@@ -15,19 +15,19 @@ public class TestController {
         return "Public Content.";
     }
 
-    @GetMapping("/userPage")
+    @GetMapping("/user-page")
     @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
     public String userAccess() {
         return "User Content.";
     }
 
-    @GetMapping("/modPage")
+    @GetMapping("/mod-page")
     @PreAuthorize("hasRole('MODERATOR')")
     public String moderatorAccess() {
         return "Moderator Board.";
     }
 
-    @GetMapping("/adminPage")
+    @GetMapping("/admin-page")
     @PreAuthorize("hasRole('ADMIN')")
     public String adminAccess() {
         return "Admin Board.";

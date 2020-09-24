@@ -71,12 +71,16 @@ public class DataSeedingListener implements ApplicationListener<ContextRefreshed
         });
 
         // Add Post
-        if (postRepository.count() == 0) {
-            Post post = new Post();
-            post.setCategories(new HashSet<>(Collections.singletonList(categoryRepository.findById(1L).get())));
-            post.setContent("test1");
-            post.setUser(userRepository.findByEmail(Constant.Auth.ADMIN_EMAIL).get());
-            postRepository.save(post);
+        if (!(postRepository.count() > 0)) {
+            for (int i = 0; i < 10; i++) {
+                Post post = new Post();
+                post.setCategories(new HashSet<>(Collections.singletonList(categoryRepository.findById((long) (Math.random() * 10)).get())));
+                post.setContent("test" + i + Math.random() * 10);
+                post.setUrlImage(Constant.Post.LST_URL_IMAGE.get(i));
+                post.setUser(userRepository.findByEmail(Constant.Auth.ADMIN_EMAIL).get());
+                postRepository.saveAndFlush(post);
+            }
         }
+
     }
 }

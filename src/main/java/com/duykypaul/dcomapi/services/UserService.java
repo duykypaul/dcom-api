@@ -1,8 +1,8 @@
 package com.duykypaul.dcomapi.services;
 
 import com.duykypaul.dcomapi.beans.UserBean;
-import com.duykypaul.dcomapi.payload.LoginBean;
-import com.duykypaul.dcomapi.payload.PasswordBean;
+import com.duykypaul.dcomapi.payload.request.LoginBean;
+import com.duykypaul.dcomapi.payload.request.PasswordBean;
 import org.springframework.http.ResponseEntity;
 
 public interface UserService {

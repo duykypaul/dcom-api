@@ -1,6 +1,5 @@
 package com.duykypaul.dcomapi.services.impl;
 
-import com.duykypaul.dcomapi.beans.MessageBean;
 import com.duykypaul.dcomapi.beans.RoleBean;
 import com.duykypaul.dcomapi.beans.UserBean;
 import com.duykypaul.dcomapi.common.Constant;
@@ -8,9 +7,11 @@ import com.duykypaul.dcomapi.models.ConfirmationToken;
 import com.duykypaul.dcomapi.models.ERole;
 import com.duykypaul.dcomapi.models.Role;
 import com.duykypaul.dcomapi.models.User;
-import com.duykypaul.dcomapi.payload.JwtBean;
-import com.duykypaul.dcomapi.payload.LoginBean;
-import com.duykypaul.dcomapi.payload.PasswordBean;
+import com.duykypaul.dcomapi.payload.request.LoginBean;
+import com.duykypaul.dcomapi.payload.request.PasswordBean;
+import com.duykypaul.dcomapi.payload.respone.JwtBean;
+import com.duykypaul.dcomapi.payload.respone.MessageBean;
+import com.duykypaul.dcomapi.payload.respone.ResponseBean;
 import com.duykypaul.dcomapi.repository.ConfirmationTokenRepository;
 import com.duykypaul.dcomapi.repository.RoleRepository;
 import com.duykypaul.dcomapi.repository.UserRepository;
@@ -18,7 +19,6 @@ import com.duykypaul.dcomapi.security.jwt.JwtUtils;
 import com.duykypaul.dcomapi.security.services.EmailSenderService;
 import com.duykypaul.dcomapi.services.UserService;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.PropertyMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,13 +66,6 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private ConfirmationTokenRepository confirmationTokenRepository;
-
-    private final PropertyMap<User, UserBean> propertyMapIgnorePassword = new PropertyMap<User, UserBean>() {
-        @Override
-        protected void configure() {
-            skip(destination.getPassword());
-        }
-    };
 
     @Override
     public ResponseEntity<?> signIn(LoginBean loginBean) {
@@ -181,7 +174,7 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<?> findById(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Error: User Id is not found"));
         UserBean userBean = modelMapper.map(user, UserBean.class);
-        return ResponseEntity.ok(userBean);
+        return ResponseEntity.ok(new ResponseBean(HttpStatus.OK.value(), userBean, "Success"));
     }
 
     @Override

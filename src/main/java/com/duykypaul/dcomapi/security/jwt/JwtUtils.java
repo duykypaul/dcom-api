@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
 @Component
@@ -22,25 +24,26 @@ public class JwtUtils {
 
     public String generateJwtToken(Authentication authentication) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-
+        Claims claims = Jwts.claims().setSubject(userPrincipal.getUsername());
+        claims.put("id", userPrincipal.getId() + "");
         return Jwts.builder()
-                .setSubject(userPrincipal.getUsername())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)
-                .compact();
+            .setClaims(claims)
+            .setIssuedAt(new Date())
+            .setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
+            .signWith(SignatureAlgorithm.HS512, jwtSecret)
+            .compact();
     }
 
     public String findUsernameByJwtToken(String token) {
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
     }
 
-    public String findRoleByJwtToken(String token) {
-        return token;
+    public String findIdByJwtToken(String token) {
+        return (String) Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().get("id");
     }
 
     public boolean validateJwtToken(String authToken) {
-        try{
+        try {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
             return true;
         } catch (SignatureException e) {
@@ -55,5 +58,14 @@ public class JwtUtils {
             LOGGER.error("JWT claims string is empty: {}", e.getMessage());
         }
         return false;
+    }
+
+    public String parseJwt(HttpServletRequest httpServletRequest) {
+        String headerAuth = httpServletRequest.getHeader("Authorization");
+
+        if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
+            return headerAuth.substring("Bearer ".length());
+        }
+        return null;
     }
 }

@@ -1,4 +1,4 @@
-package com.duykypaul.dcomapi.payload;
+package com.duykypaul.dcomapi.payload.request;
 
 import lombok.Getter;
 import lombok.Setter;

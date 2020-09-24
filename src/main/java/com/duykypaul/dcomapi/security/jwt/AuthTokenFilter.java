@@ -8,7 +8,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -30,7 +29,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
         try {
-            String jwtToken = parseJwt(httpServletRequest);
+            String jwtToken = jwtUtils.parseJwt(httpServletRequest);
             if(null != jwtToken && jwtUtils.validateJwtToken(jwtToken)) {
                 String username = jwtUtils.findUsernameByJwtToken(jwtToken);
 
@@ -47,14 +46,5 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             logger.error("Cannot set user authentication: {}", e.getMessage());
         }
         filterChain.doFilter(httpServletRequest, httpServletResponse);
-    }
-
-    private String parseJwt(HttpServletRequest httpServletRequest) {
-        String headerAuth = httpServletRequest.getHeader("Authorization");
-
-        if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-            return headerAuth.substring("Bearer ".length());
-        }
-        return null;
     }
 }

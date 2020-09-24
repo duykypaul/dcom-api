@@ -1,6 +1,6 @@
 package com.duykypaul.dcomapi.controllers;
 
-import com.duykypaul.dcomapi.payload.PasswordBean;
+import com.duykypaul.dcomapi.payload.request.PasswordBean;
 import com.duykypaul.dcomapi.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +10,7 @@ import javax.validation.Valid;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/users")
 public class UserController {
 
     @Autowired
@@ -26,20 +26,20 @@ public class UserController {
         return userService.findById(id);
     }
 
-    @GetMapping("/findAllPaging")
+    @GetMapping("/pagination")
     public ResponseEntity<?> findAllPaging(@RequestParam(defaultValue = "0") Integer pageNo,
                                            @RequestParam(defaultValue = "10") Integer pageSize,
                                            @RequestParam(defaultValue = "id") String sortBy) {
         return userService.findAll(pageNo, pageSize, sortBy);
     }
 
-    @PostMapping("/password")
-    public ResponseEntity<?> changePassword(@Valid @RequestBody PasswordBean bean) {
+    @PostMapping("/{id}/password")
+    public ResponseEntity<?> changePassword(@PathVariable Long id, @Valid @RequestBody PasswordBean bean) {
         return userService.changePassword(bean);
     }
 
-    @PutMapping
-    public ResponseEntity<?> updateUser(@Valid @RequestBody PasswordBean bean) {
-        return userService.changePassword(bean);
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id) {
+        return null;
     }
 }

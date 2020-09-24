@@ -1,7 +1,7 @@
 package com.duykypaul.dcomapi.controllers;
 
 import com.duykypaul.dcomapi.beans.UserBean;
-import com.duykypaul.dcomapi.payload.LoginBean;
+import com.duykypaul.dcomapi.payload.request.LoginBean;
 import com.duykypaul.dcomapi.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,17 +25,17 @@ public class AuthController {
     @Autowired
     UserService userService;
 
-    @PostMapping("/signIn")
+    @PostMapping("/sign-in")
     public ResponseEntity<?> signIn(@Valid @RequestBody LoginBean loginBean) {
         return userService.signIn(loginBean);
     }
 
-    @PostMapping("/signUp")
+    @PostMapping("/sign-up")
     public ResponseEntity<?> signUp(@Valid @RequestBody UserBean userBean) {
         return userService.signUp(userBean);
     }
 
-    @PostMapping("/signOut")
+    @PostMapping("/sign-out")
     public void signOut(HttpServletRequest request, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
