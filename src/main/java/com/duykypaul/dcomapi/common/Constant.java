@@ -7,6 +7,8 @@ import java.util.List;
 public class Constant {
     public static final String DCOM_API_URL = "http://localhost:1102/api";
     public static final String UPLOAD_ROOT = "uploads";
+    public static final String BACKUP_DB = "backupDB";
+    public static final int DB_PORT = 3308;
 
     public static class Auth {
         public static final String ADMIN_EMAIL = "lminh9812@gmail.com";
