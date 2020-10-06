@@ -1,41 +1,49 @@
 server:
-  port: 1102
+    port: 1102
 
 spring:
-  # Data-Source Properties
-  datasource:
-    url: jdbc:mysql://127.0.0.1:3308/dcom_api?useSSL=false&allowPublicKeyRetrieval=true
-    username: root
-    password: duyky123
-
-  # JPA Properties
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
-        format_sql: true
-    hibernate:
-      ddl-auto: create
-    show-sql: true
-
-  # Email Properties
-  mail:
-    host: smtp.gmail.com
-    port: 993
-    properties:
-      mail:
-        username: duykypaul@gmail.com
+    # Data-Source Properties
+    datasource:
+        url: jdbc:mysql://127.0.0.1:3308/dcom_api?useSSL=false&allowPublicKeyRetrieval=true
+        username: root
         password: duyky123
-        smtp:
-          starttls:
-            enable: true
-            required: true
-          auth: true
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
+
+    # JPA Properties
+    jpa:
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+                format_sql: true
+        hibernate:
+            ddl-auto: create # none, create-only, drop, create, create-drop, validate, update
+        show-sql: true
+
+    # Email Properties
+    mail:
+        host: smtp.gmail.com
+        port: 587
+        username: lminh9812@gmail.com
+        password: 890*()iop
+        properties:
+            mail:
+                smtp:
+                    starttls:
+                        enable: true
+                        required: true
+                    auth: true
+                    connectiontimeout: 5000
+                    timeout: 5000
+                    writetimeout: 5000
+                transport:
+                    protocol: smtp
 # App Properties
 duykypaul:
-  app:
-    jwtSecret: kyLCSecretKey
-    jwtExpirationMs: 3600000
+    app:
+        jwtSecret: kyLCSecretKey
+        jwtExpirationMs: 86400000
+
+##### mysqldump -u root -pduyky123 -P 3308 dcom_api -r D:\FreeLance_Project\dcom\dcom-api\backupDB\dcom_api_26_09_2020_1601057510003.sql
+
+##### netstat -ao | find "{port}"
+##### Taskkill /PID {PID} /F
+

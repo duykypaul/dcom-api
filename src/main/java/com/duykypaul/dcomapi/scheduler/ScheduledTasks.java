@@ -25,30 +25,23 @@ public class ScheduledTasks {
     private String dbPassword;
 
     //    @Scheduled(cron = "*/5 * * * * ?")
-    @Scheduled(cron = " 0 3 2 ? * *")
+    @Scheduled(cron = "0 30 9 15 * ?")
     public void backupDB() throws IOException {
         log.info("The time is now {}", dateFormat.format(new Date()));
         Date backupDate = new Date();
         SimpleDateFormat format = new SimpleDateFormat("dd_MM_yyyy");
         String backupDateStr = format.format(backupDate);
-        String dbNameList = "dcom_api";
-
-        String fileName = "dcom_api"; // default file name
+        String dbName = "dcom_api"; // default file name
 
         Path path = Paths.get(Constant.BACKUP_DB);
         if (!Files.exists(path)) {
             Files.createDirectories(path);
         }
 
-        /*String folderPath = "D:\\home";
-        File f1 = new File(folderPath);
-        f1.mkdir(); // create folder if not exist*/
-
-        String saveFileName = fileName + "_" + backupDateStr + "_" + new Date().getTime() + ".sql";
+        String saveFileName = dbName + "_" + backupDateStr + "_" + new Date().getTime() + ".sql";
         String savePath = path.toAbsolutePath() + File.separator + saveFileName;
-//        String savePath = folderPath + File.separator + saveFileName;
 
-        String executeCmd = "mysqldump -u " + dbUsername + " -p" + dbPassword + " -P " + Constant.DB_PORT + " " + dbNameList + " -r " + savePath;
+        String executeCmd = "mysqldump -u " + dbUsername + " -p" + dbPassword + " -P " + Constant.DB_PORT + " " + dbName + " -r " + savePath;
 
         Process runtimeProcess = null;
         try {

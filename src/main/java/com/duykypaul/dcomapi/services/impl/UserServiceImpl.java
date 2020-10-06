@@ -36,7 +36,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 @Service
@@ -143,7 +150,7 @@ public class UserServiceImpl implements UserService {
 
         emailSenderService.sendEmail(mailMessage);
 
-        return ResponseEntity.ok(new MessageBean(0, "Please check gmail to confirm your account!"));
+        return ResponseEntity.ok(new ResponseBean(HttpStatus.OK.value(), userBean, "Please check gmail to confirm your account!"));
     }
 
     @Override
@@ -167,7 +174,7 @@ public class UserServiceImpl implements UserService {
             user.setEnabled(true);
             userRepository.save(user);
         }
-        return ResponseEntity.ok(new MessageBean(0, "User registered successfully!"));
+        return ResponseEntity.ok(new MessageBean(HttpStatus.OK.value(), "User registered successfully!"));
     }
 
     @Override
@@ -191,6 +198,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<?> changePassword(PasswordBean bean) {
         return ResponseEntity.ok("ok");
     }
@@ -204,5 +212,37 @@ public class UserServiceImpl implements UserService {
         return ResponseEntity.ok(userBeans);
     }
 
+    @Override
+    @Transactional
+    public ResponseEntity<?> save(Long id, UserBean userBean) {
+        try {
+            User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Error: User is not found"));
+            user.setUsername(userBean.getUsername());
+            user.setGender(userBean.getGender());
+            user.setDescription(userBean.getDescription());
+            user.setUsername(userBean.getUsername());
 
+            if (userBean.getFileImage() != null && !userBean.getFileImage().isEmpty()) {
+                String fileName = StringUtils.cleanPath(Objects.requireNonNull(userBean.getFileImage().getOriginalFilename()));
+                Path path = Paths.get(Constant.UPLOAD_ROOT, Constant.UPLOAD_USER);
+                if (!Files.exists(path)) {
+                    Files.createDirectories(path);
+                }
+                try {
+                    InputStream inputStream = userBean.getFileImage().getInputStream();
+                    Files.copy(inputStream, path.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+                    user.setProfilePicture(fileName);
+                } catch (IOException ioException) {
+                    logger.error(ioException.getMessage(), ioException);
+                    return ResponseEntity.ok(new ResponseBean(HttpStatus.INTERNAL_SERVER_ERROR.value(), null, "Failure"));
+                }
+            }
+
+            userRepository.save(user);
+            return ResponseEntity.ok(new ResponseBean(HttpStatus.OK.value(), user, "Success"));
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return ResponseEntity.ok(new MessageBean(HttpStatus.BAD_REQUEST.value(), "Cannot update profile!"));
+        }
+    }
 }

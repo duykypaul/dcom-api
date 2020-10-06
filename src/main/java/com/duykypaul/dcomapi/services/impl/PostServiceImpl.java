@@ -2,9 +2,11 @@ package com.duykypaul.dcomapi.services.impl;
 
 import com.duykypaul.dcomapi.beans.PostBean;
 import com.duykypaul.dcomapi.common.Constant;
+import com.duykypaul.dcomapi.models.Category;
 import com.duykypaul.dcomapi.models.Post;
 import com.duykypaul.dcomapi.models.User;
 import com.duykypaul.dcomapi.payload.respone.ResponseBean;
+import com.duykypaul.dcomapi.repository.CategoryRepository;
 import com.duykypaul.dcomapi.repository.PostRepository;
 import com.duykypaul.dcomapi.repository.UserRepository;
 import com.duykypaul.dcomapi.services.PostService;
@@ -29,9 +31,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PostServiceImpl implements PostService {
@@ -49,6 +50,9 @@ public class PostServiceImpl implements PostService {
     PostRepository postRepository;
 
     @Autowired
+    CategoryRepository categoryRepository;
+
+    @Autowired
     ModelMapper modelMapper;
 
     @Override
@@ -61,19 +65,21 @@ public class PostServiceImpl implements PostService {
     @Override
     public ResponseEntity<?> findByUserId(Long id) {
         List<Post> posts = postRepository.findAllByUserId(id);
+        posts.sort(Comparator.comparing(Post::getCreatedAt).reversed());
         return ResponseEntity.ok(new ResponseBean(HttpStatus.OK.value(), posts, "Success"));
     }
 
     @Override
     public ResponseEntity<?> findAll() {
         List<Post> posts = postRepository.findAll();
+        posts.sort(Comparator.comparing(Post::getCreatedAt).reversed());
         List<PostBean> postBeans = modelMapper.map(posts, lstPostBeanType);
         return ResponseEntity.ok(new ResponseBean(HttpStatus.OK.value(), postBeans, "Success"));
     }
 
     @Override
     public ResponseEntity<?> findAll(Integer pageNo, Integer pageSize, String sortBy) {
-        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
         List<Post> posts = postRepository.findAll(paging).getContent();
         List<PostBean> postBeans = modelMapper.map(posts, lstPostBeanType);
         return ResponseEntity.ok(new ResponseBean(HttpStatus.OK.value(), postBeans, "Success"));
@@ -84,7 +90,7 @@ public class PostServiceImpl implements PostService {
         try {
             if (StringUtils.isEmpty(postBean.getUrlImage())) {
                 String fileName = StringUtils.cleanPath(Objects.requireNonNull(postBean.getFileImage().getOriginalFilename()));
-                Path path = Paths.get(Constant.UPLOAD_ROOT, Constant.Post.UPLOAD_POST);
+                Path path = Paths.get(Constant.UPLOAD_ROOT, Constant.UPLOAD_POST);
                 if (!Files.exists(path)) {
                     Files.createDirectories(path);
                 }
@@ -99,8 +105,14 @@ public class PostServiceImpl implements PostService {
             }
 
             Post post = modelMapper.map(postBean, Post.class);
+
             User user = userRepository.getOne(userId);
             post.setUser(user);
+
+            List<Long> categoryIds = Arrays.stream(postBean.getLstCategoryReq().split(Constant.COMMA)).map(Long::parseLong).collect(Collectors.toList());
+            Set<Category> categories = categoryRepository.findByIdIn(categoryIds);
+            post.setCategories(categories);
+
             postRepository.save(post);
             return ResponseEntity.ok(new ResponseBean(HttpStatus.OK.value(), postBean, "Success"));
         } catch (Exception e) {

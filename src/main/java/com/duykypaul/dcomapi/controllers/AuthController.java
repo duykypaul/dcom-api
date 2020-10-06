@@ -43,7 +43,7 @@ public class AuthController {
         }
     }
 
-    @RequestMapping(value = "/confirm-account", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/confirm-account", method = {RequestMethod.GET})
     public ResponseEntity<?> confirmUserAccount(@RequestParam("token") String confirmationToken) {
         return userService.confirmUserAccount(confirmationToken);
     }

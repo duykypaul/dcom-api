@@ -22,6 +22,8 @@ public class PostBean extends BaseBean<PostBean> {
     private UserBean user = new UserBean();
     private Set<CategoryBean> categories;
 
+    private String lstCategoryReq;
+
     public PostBean() {
     }
 }

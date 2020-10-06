@@ -1,27 +1,26 @@
 package com.duykypaul.dcomapi.beans;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.Set;
 
-@Getter @Setter
+@Getter
+@Setter
 public class UserBean extends BaseBean<UserBean> {
-    @NotBlank
+    @JsonIgnore
+    MultipartFile fileImage;
+    //    @NotBlank
     @Size(min = 3, max = 20)
     private String username;
-
-    @NotBlank
+    //    @NotBlank
     @Email
     @Size(max = 50)
     private String email;
-
-    @NotBlank
-    @Size(min = 6, max = 30)
-    private String password;
 
     private Set<RoleBean> roles;
 
@@ -36,4 +35,7 @@ public class UserBean extends BaseBean<UserBean> {
     private String profileViews;
     private String permission;
     private boolean isEnabled;
+    //    @NotBlank
+    @Size(min = 6, max = 30)
+    private String password;
 }
