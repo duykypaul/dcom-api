@@ -6,6 +6,7 @@ import java.util.List;
 
 public class Constant {
     public static final String DCOM_API_URL = "http://localhost:1102/api";
+    public static final String DCOM_VUE_URL = "http://localhost:8080/verify-email";
     public static final String UPLOAD_ROOT = "uploads";
     public static final String UPLOAD_POST = "posts" + File.separator + "images";
     public static final String UPLOAD_USER = "users" + File.separator + "images";
@@ -18,6 +19,7 @@ public class Constant {
         public static final String ADMIN_PASSWORD = "890*()iop";
         public static final String ADMIN_NAME = "admin";
         public static final int EXPIRATION = 60 * 24;
+        public static final String AVATAR_DEFAULT = "avatar_default.jpg";
     }
 
     public static class Category {

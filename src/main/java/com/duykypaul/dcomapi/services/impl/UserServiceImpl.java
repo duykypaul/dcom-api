@@ -136,6 +136,7 @@ public class UserServiceImpl implements UserService {
             });
         }
         user.setRoles(roles);
+        user.setProfilePicture(Constant.Auth.AVATAR_DEFAULT);
         userRepository.save(user);
 
         ConfirmationToken confirmationToken = new ConfirmationToken(user);
@@ -146,8 +147,7 @@ public class UserServiceImpl implements UserService {
         mailMessage.setSubject("Complete Registration!");
         mailMessage.setFrom("duykypaul@gmail.com");
         mailMessage.setText("To confirm your account, please click here : "
-            + Constant.DCOM_API_URL + "/auth/confirm-account?token=" + confirmationToken.getConfirmationToken());
-
+            + Constant.DCOM_VUE_URL + "/" + confirmationToken.getConfirmationToken());
         emailSenderService.sendEmail(mailMessage);
 
         return ResponseEntity.ok(new ResponseBean(HttpStatus.OK.value(), userBean, "Please check gmail to confirm your account!"));
@@ -179,9 +179,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<?> findById(Long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Error: User Id is not found"));
-        UserBean userBean = modelMapper.map(user, UserBean.class);
-        return ResponseEntity.ok(new ResponseBean(HttpStatus.OK.value(), userBean, "Success"));
+        try {
+            User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Error: User Id is not found"));
+            UserBean userBean = modelMapper.map(user, UserBean.class);
+            return ResponseEntity.ok(new ResponseBean(HttpStatus.OK.value(), userBean, "Success"));
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return ResponseEntity.ok(new ResponseBean(HttpStatus.UNAUTHORIZED.value(), null, "UnAuthorized"));
+        }
     }
 
     @Override
