@@ -62,7 +62,7 @@ public class PostController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createOnePost(HttpServletRequest request, @ModelAttribute PostBean postBean) {
+    public ResponseEntity<?> createPost(HttpServletRequest request, @ModelAttribute PostBean postBean) {
         String token = jwtUtils.parseJwt(request);
         Long userId = Long.valueOf(jwtUtils.findIdByJwtToken(token));
         return postService.save(postBean, userId);
@@ -93,13 +93,10 @@ public class PostController {
         return ResponseEntity.badRequest().build();
     }
 
-    /*@GetMapping("/{categoryId}/category")
-    public ResponseEntity<?> findByCategoryId(@PathVariable Long categoryId) {
-        Optional<Category> category = categoryRepository.findById(categoryId);
-        List<Post> posts = new ArrayList<>();
-        if(category.isPresent()) {
-            posts = PostRepository.findPostsByCategoriesContains(category.get());
-        }
-        return ResponseEntity.ok(new ResponseBean(HttpStatus.OK.value(), posts, "Success"));
-    }*/
+    @GetMapping("/search/{key}")
+    public ResponseEntity<?> findAllBySearchKey(@RequestParam(defaultValue = "0") Integer pageNo,
+                                                @RequestParam(defaultValue = "10") Integer pageSize,
+                                                @RequestParam(defaultValue = "createdAt") String sortBy, @PathVariable String key) {
+        return postService.findAllBySearchKey(pageNo, pageSize, sortBy, key);
+    }
 }

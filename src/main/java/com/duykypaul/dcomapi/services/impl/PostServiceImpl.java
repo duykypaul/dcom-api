@@ -132,4 +132,12 @@ public class PostServiceImpl implements PostService {
         List<PostBean> postBeans = modelMapper.map(posts, lstPostBeanType);
         return ResponseEntity.ok(new ResponseBean(HttpStatus.OK.value(), postBeans, "Success"));
     }
+
+    @Override
+    public ResponseEntity<?> findAllBySearchKey(Integer pageNo, Integer pageSize, String sortBy, String key) {
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
+        List<Post> posts = postRepository.findAllBySearchKey(paging, key);
+        List<PostBean> postBeans = modelMapper.map(posts, lstPostBeanType);
+        return ResponseEntity.ok(new ResponseBean(HttpStatus.OK.value(), postBeans, "Success"));
+    }
 }

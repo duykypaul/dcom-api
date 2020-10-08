@@ -17,4 +17,5 @@ public interface PostService {
 
     ResponseEntity<?> findAllByCategoryId(Integer pageNo, Integer pageSize, String sortBy, Long id);
 
+    ResponseEntity<?> findAllBySearchKey(Integer pageNo, Integer pageSize, String sortBy, String key);
 }

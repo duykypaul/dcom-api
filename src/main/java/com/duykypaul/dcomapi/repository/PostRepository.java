@@ -20,4 +20,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Slice<Object> findAllByCategoryId(Pageable paging, Long id);*/
 
     List<Post> findPostsByCategoriesContains(Pageable paging, Category category);
+
+    @Query("select p from Post p where p.user.username like %:key% or p.content like %:key%")
+    List<Post> findAllBySearchKey(Pageable paging, String key);
+
 }
