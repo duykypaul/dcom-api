@@ -121,11 +121,15 @@ public class PostServiceImpl implements PostService {
         }
     }
 
-    /*@Override
+    @Override
     public ResponseEntity<?> findAllByCategoryId(Integer pageNo, Integer pageSize, String sortBy, Long id) {
-        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
-        List<Object> posts = postRepository.findAllByCategoryId(paging, id).getContent();
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
+        Optional<Category> category = categoryRepository.findById(id);
+        List<Post> posts = new ArrayList<>();
+        if (category.isPresent()) {
+            posts = postRepository.findPostsByCategoriesContains(paging, category.get());
+        }
         List<PostBean> postBeans = modelMapper.map(posts, lstPostBeanType);
         return ResponseEntity.ok(new ResponseBean(HttpStatus.OK.value(), postBeans, "Success"));
-    }*/
+    }
 }

@@ -2,6 +2,8 @@ package com.duykypaul.dcomapi.controllers;
 
 import com.duykypaul.dcomapi.beans.PostBean;
 import com.duykypaul.dcomapi.common.Constant;
+import com.duykypaul.dcomapi.repository.CategoryRepository;
+import com.duykypaul.dcomapi.repository.PostRepository;
 import com.duykypaul.dcomapi.security.jwt.JwtUtils;
 import com.duykypaul.dcomapi.services.PostService;
 import org.slf4j.Logger;
@@ -27,6 +29,12 @@ public class PostController {
 
     @Autowired
     PostService postService;
+
+    @Autowired
+    CategoryRepository categoryRepository;
+
+    @Autowired
+    PostRepository PostRepository;
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -60,12 +68,12 @@ public class PostController {
         return postService.save(postBean, userId);
     }
 
-    /*@GetMapping("/pagination/{id}/category")
+    @GetMapping("/pagination/{id}/category")
     public ResponseEntity<?> findAllPaging(@RequestParam(defaultValue = "0") Integer pageNo,
                                            @RequestParam(defaultValue = "10") Integer pageSize,
-                                           @RequestParam(defaultValue = "id") String sortBy, @PathVariable Long id) {
-        return PostService.findAllByCategoryId(pageNo, pageSize, sortBy, id);
-    }*/
+                                           @RequestParam(defaultValue = "createdAt") String sortBy, @PathVariable Long id) {
+        return postService.findAllByCategoryId(pageNo, pageSize, sortBy, id);
+    }
 
     @GetMapping("/get-image/{image}")
     public ResponseEntity<ByteArrayResource> getImage(@PathVariable String image) {
@@ -84,4 +92,14 @@ public class PostController {
         }
         return ResponseEntity.badRequest().build();
     }
+
+    /*@GetMapping("/{categoryId}/category")
+    public ResponseEntity<?> findByCategoryId(@PathVariable Long categoryId) {
+        Optional<Category> category = categoryRepository.findById(categoryId);
+        List<Post> posts = new ArrayList<>();
+        if(category.isPresent()) {
+            posts = PostRepository.findPostsByCategoriesContains(category.get());
+        }
+        return ResponseEntity.ok(new ResponseBean(HttpStatus.OK.value(), posts, "Success"));
+    }*/
 }

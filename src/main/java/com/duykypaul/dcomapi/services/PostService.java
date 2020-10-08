@@ -15,5 +15,6 @@ public interface PostService {
 
     ResponseEntity<?> save(PostBean postBean, Long userId);
 
-    /*ResponseEntity<?> findAllByCategoryId(Integer pageNo, Integer pageSize, String sortBy, Long id);*/
+    ResponseEntity<?> findAllByCategoryId(Integer pageNo, Integer pageSize, String sortBy, Long id);
+
 }
