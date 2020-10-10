@@ -6,13 +6,18 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-@Getter @Setter
-public class LoginBean {
+@Getter
+@Setter
+public class PasswordReq {
     @NotBlank
-    @Size(min = 3, max = 20)
-    private String username;
+    @Size(min = 3, max = 30)
+    private String oldPassword;
 
     @NotBlank
     @Size(min = 6, max = 30)
-    private String password;
+    private String newPassword;
+
+    @NotBlank
+    @Size(min = 6, max = 30)
+    private String reNewPassword;
 }

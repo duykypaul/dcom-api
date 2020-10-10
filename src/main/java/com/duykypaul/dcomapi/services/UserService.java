@@ -1,12 +1,12 @@
 package com.duykypaul.dcomapi.services;
 
 import com.duykypaul.dcomapi.beans.UserBean;
-import com.duykypaul.dcomapi.payload.request.LoginBean;
-import com.duykypaul.dcomapi.payload.request.PasswordBean;
+import com.duykypaul.dcomapi.payload.request.LoginReq;
+import com.duykypaul.dcomapi.payload.request.PasswordReq;
 import org.springframework.http.ResponseEntity;
 
 public interface UserService {
-    ResponseEntity<?> signIn(LoginBean loginBean);
+    ResponseEntity<?> signIn(LoginReq loginReq);
 
     ResponseEntity<?> signUp(UserBean userBean);
 
@@ -18,7 +18,7 @@ public interface UserService {
 
     ResponseEntity<?> findAll(Integer pageNo, Integer pageSize, String sortBy);
 
-    ResponseEntity<?> changePassword(PasswordBean bean);
+    ResponseEntity<?> changePassword(PasswordReq bean);
 
     ResponseEntity<?> save(Long id, UserBean userBean);
 }

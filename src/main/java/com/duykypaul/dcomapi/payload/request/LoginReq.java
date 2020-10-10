@@ -8,16 +8,12 @@ import javax.validation.constraints.Size;
 
 @Getter
 @Setter
-public class PasswordBean {
+public class LoginReq {
     @NotBlank
-    @Size(min = 3, max = 30)
-    private String oldPassword;
+    @Size(min = 3, max = 20)
+    private String username;
 
     @NotBlank
     @Size(min = 6, max = 30)
-    private String newPassword;
-
-    @NotBlank
-    @Size(min = 6, max = 30)
-    private String reNewPassword;
+    private String password;
 }

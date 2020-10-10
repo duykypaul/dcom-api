@@ -39,6 +39,7 @@ public class Post extends BaseEntity {
         orphanRemoval = true,
         mappedBy = "post"
     )
+    @OrderBy(value = "createdAt DESC")
     private List<Comment> comments = new ArrayList<>();
 
     public Post() {

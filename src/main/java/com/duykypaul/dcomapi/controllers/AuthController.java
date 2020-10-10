@@ -1,7 +1,7 @@
 package com.duykypaul.dcomapi.controllers;
 
 import com.duykypaul.dcomapi.beans.UserBean;
-import com.duykypaul.dcomapi.payload.request.LoginBean;
+import com.duykypaul.dcomapi.payload.request.LoginReq;
 import com.duykypaul.dcomapi.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +26,8 @@ public class AuthController {
     UserService userService;
 
     @PostMapping("/sign-in")
-    public ResponseEntity<?> signIn(@Valid @RequestBody LoginBean loginBean) {
-        return userService.signIn(loginBean);
+    public ResponseEntity<?> signIn(@Valid @RequestBody LoginReq loginReq) {
+        return userService.signIn(loginReq);
     }
 
     @PostMapping("/sign-up")

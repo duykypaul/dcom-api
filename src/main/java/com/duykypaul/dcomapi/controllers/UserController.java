@@ -2,7 +2,7 @@ package com.duykypaul.dcomapi.controllers;
 
 import com.duykypaul.dcomapi.beans.UserBean;
 import com.duykypaul.dcomapi.common.Constant;
-import com.duykypaul.dcomapi.payload.request.PasswordBean;
+import com.duykypaul.dcomapi.payload.request.PasswordReq;
 import com.duykypaul.dcomapi.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,7 @@ public class UserController {
     }
 
     @PostMapping("/{id}/password")
-    public ResponseEntity<?> changePassword(@PathVariable Long id, @Valid @RequestBody PasswordBean bean) {
+    public ResponseEntity<?> changePassword(@PathVariable Long id, @Valid @RequestBody PasswordReq bean) {
         return userService.changePassword(bean);
     }
 

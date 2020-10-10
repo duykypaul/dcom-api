@@ -7,8 +7,8 @@ import com.duykypaul.dcomapi.models.ConfirmationToken;
 import com.duykypaul.dcomapi.models.ERole;
 import com.duykypaul.dcomapi.models.Role;
 import com.duykypaul.dcomapi.models.User;
-import com.duykypaul.dcomapi.payload.request.LoginBean;
-import com.duykypaul.dcomapi.payload.request.PasswordBean;
+import com.duykypaul.dcomapi.payload.request.LoginReq;
+import com.duykypaul.dcomapi.payload.request.PasswordReq;
 import com.duykypaul.dcomapi.payload.respone.JwtBean;
 import com.duykypaul.dcomapi.payload.respone.MessageBean;
 import com.duykypaul.dcomapi.payload.respone.ResponseBean;
@@ -75,9 +75,9 @@ public class UserServiceImpl implements UserService {
     private ConfirmationTokenRepository confirmationTokenRepository;
 
     @Override
-    public ResponseEntity<?> signIn(LoginBean loginBean) {
+    public ResponseEntity<?> signIn(LoginReq loginReq) {
         try {
-            UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(loginBean.getUsername(), loginBean.getPassword());
+            UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(loginReq.getUsername(), loginReq.getPassword());
             Authentication authentication = authenticationManager.authenticate(authReq);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -204,7 +204,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public ResponseEntity<?> changePassword(PasswordBean bean) {
+    public ResponseEntity<?> changePassword(PasswordReq bean) {
         return ResponseEntity.ok("ok");
     }
 

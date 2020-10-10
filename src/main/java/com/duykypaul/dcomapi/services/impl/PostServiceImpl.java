@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
@@ -86,6 +87,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<?> save(PostBean postBean, Long userId) {
         try {
             if (StringUtils.isEmpty(postBean.getUrlImage())) {
