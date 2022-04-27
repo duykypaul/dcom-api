@@ -1,5 +1,7 @@
 package com.duykypaul.dcomapi.security.jwt;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.duykypaul.dcomapi.security.services.UserDetailsServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,10 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         try {
             String jwtToken = jwtUtils.parseJwt(httpServletRequest);
             if(null != jwtToken && jwtUtils.validateJwtToken(jwtToken)) {
+                // todo decode jwt without secret string
+                DecodedJWT jwt = JWT.decode(jwtToken);
+                System.out.println(jwt);
+
                 String username = jwtUtils.findUsernameByJwtToken(jwtToken);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
